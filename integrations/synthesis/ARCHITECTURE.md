@@ -3,13 +3,13 @@
 ## High-Level Flow
 
 1. Human gives a task to OpenClio Sentinel.
-2. The hackathon wrapper sends the task to the local OpenClio HTTP API.
+2. The Synthesis demo and export scripts invoke the local OpenClio runtime and HTTP API.
 3. OpenClio executes the task using:
    - model provider
    - memory
    - tools
    - approval / allowlist policy
-4. The wrapper exports:
+4. The Synthesis integration exports:
    - session trace
    - session stats
    - conversation log
@@ -18,14 +18,20 @@
 
 ## Components
 
-- **Synthesis Wrapper**
+- **OpenClio Sentinel Runtime**
+  - runnable `openclio` binary
+  - local HTTP API
+  - trust and cooperation demo entrypoints
+  - bounded tool and approval policy
+
+- **Synthesis Integration Layer**
   - registration helper
   - status check
-  - demo runner
+  - demo runners
   - export helpers
 
-- **OpenClio Runtime**
-  - chat/task execution API
+- **OpenClio Core Runtime**
+  - chat and task execution API
   - session storage
   - memory
   - tools
@@ -42,7 +48,9 @@
 Human
   |
   v
-OpenClio Sentinel wrapper
+OpenClio Sentinel runtime
+  |
+  +--> Synthesis demo and export scripts
   |
   v
 OpenClio local API

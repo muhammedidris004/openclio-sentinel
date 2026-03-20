@@ -1,0 +1,190 @@
+# ── Model / Provider ──────────────────────────────────────────────────────────
+model:
+  provider:    ""               # choose one: ollama | openai | anthropic | gemini
+  model:       ""               # choose a model compatible with your provider
+  api_key_env: ""               # required for cloud providers, empty for ollama
+  fallback_providers: [] # e.g. [openai, ollama]
+
+  # Ollama context window (num_ctx). Ollama defaults to 4096 which causes
+  # silent truncation of your conversation history and memory.
+  # Set to at least context.max_tokens_per_call + 8000.
+  # 16384 — safe for 7B models on 8 GB RAM
+  # 32768 — good for 13B+ models on 16 GB+ RAM
+  # 65536 — for large models on 32 GB+ RAM (e.g. deepseek-r1:32b)
+  ollama_num_ctx: 8192
+
+# ── Heuristic Model Router ───────────────────────────────────────────────────
+model_router:
+  enabled: false
+  strategy: cost_optimized      # cost_optimized | quality_first | speed_first | privacy_first
+  cheap_model: ""               # optional explicit tier mapping
+  mid_model: ""
+  expensive_model: ""
+  privacy_model: ""             # used by privacy_first strategy when set
+
+# ── Embeddings ────────────────────────────────────────────────────────────────
+embeddings:
+  provider: auto               # auto | openai | ollama
+  model: nomic-embed-text
+  api_key_env: OPENAI_API_KEY
+  base_url: http://127.0.0.1:11434
+
+# ── OAuth — Sign in with ChatGPT (OpenAI Codex public client) ─────────────────
+# Lets you authenticate with your ChatGPT Plus/Pro subscription instead of an API key.
+# Uses the same OAuth app as the official OpenAI Codex CLI (no registration needed).
+auth:
+  openai_oauth:
+    enabled: true
+    client_id: "app_EMoamEEZ73f0CkXaXp7hrann"
+    authorization_url: "https://auth.openai.com/oauth/authorize"
+    token_url: "https://auth.openai.com/oauth/token"
+    scope: "openid profile email offline_access"
+    # client_secret intentionally omitted — public PKCE client, no secret required
+
+# ── Semantic Memory Provider (Tier 3) ───────────────────────────────────────
+memory:
+  provider: workspace          # workspace | mem0style
+  mode: enhanced               # off | standard | enhanced
+  eam_serving_enabled: true    # EAM prompt serving on top of base memory provider; set false for rollback
+  mem0style:
+    db_path: ""                # optional; defaults to ~/.openclio/memory_mem0style.db
+    min_salience: 0.70
+
+# ── Gateway (HTTP + WebSocket server) ─────────────────────────────────────────
+gateway:
+  port: 18789
+  bind: 127.0.0.1
+
+# ── Context Engine ────────────────────────────────────────────────────────────
+context:
+  max_tokens_per_call:  8000
+  history_retrieval_k:  10
+  proactive_compaction: 0.5
+  compaction_keep_recent: 5
+  compaction_model: ""
+  tool_result_summary:  true
+
+# ── Epistemic Ambient Memory (EAM) ───────────────────────────────────────────
+epistemic:
+  enabled: true
+  ambient:
+    enabled: true
+    signal_expiry_hours: 24
+    calendar:
+      enabled: false
+      ics_paths: []                 # e.g. ["/Users/me/calendars/work.ics"]
+      caldav_url: ""
+      caldav_username: ""
+      caldav_password_env: ""
+      lookahead_hours: 48
+      lookbehind_hours: 2
+    filesystem:
+      enabled: false
+      watch_paths: []               # defaults to current working directory when enabled
+      exclude_patterns:
+        - "**/.git/**"
+        - "**/node_modules/**"
+        - "**/__pycache__/**"
+        - "**/.DS_Store"
+        - "**/vendor/**"
+      max_events_per_minute: 50
+    temporal:
+      enabled: true
+      pattern_min_sessions: 7
+  anticipation:
+    enabled: true
+    pre_load_top_k: 10
+    min_relevance_score: 0.40
+    staging_ttl_minutes: 60
+    gap_detection:
+      enabled: true
+      sparse_threshold: 3
+      low_confidence_threshold: 0.55
+      max_gaps_to_surface: 2
+      gap_ask_cooldown_hours: 4
+
+# ── Agent Loop ────────────────────────────────────────────────────────────────
+agent:
+  max_tool_iterations: 0         # 0 = unlimited; otherwise max LLM ↔ tool round-trips per message
+
+  # Extended reasoning / thinking — makes the agent think step-by-step before answering.
+  # Anthropic: requires claude-3-7-sonnet or newer; costs extra tokens.
+  # OpenAI: auto-selects reasoning_effort for o1/o3/o4-mini models.
+  reasoning_enabled: false
+  reasoning_budget: 8000         # Anthropic only: thinking tokens (min 1024)
+
+  delegation:
+    enabled: false
+    max_parallel_sub_agents: 5
+    sub_agent_model: ""          # optional override; defaults to active model
+    synthesis_model: ""          # optional override; defaults to active model
+    timeout: 90s
+
+# ── Tools ─────────────────────────────────────────────────────────────────────
+tools:
+  max_output_size: 102400        # 100 KB — truncates shell command output
+  packs: []                      # developer | research | builder | writing
+  mcp_presets: []                # github | linear | notion | browser | database | figma
+  allowed_tools: []              # optional built-in tool allowlist; empty = no config restriction
+  exec:
+    sandbox: none
+    timeout: 30s
+    docker_image: alpine:latest
+    network_access: false
+    require_confirmation: false
+    profile: safe                # safe | developer | builder | power-user
+    allowed_commands: []         # optional extra local CLI commands
+    approval_on_block: false     # prompt once for blocked commands in interactive sessions
+  browser:
+    enabled: false
+    chrome_path: ""              # auto-detect if empty
+    headless: true
+    timeout: 30s
+
+# ── MCP Servers (optional, stdio) ────────────────────────────────────────────
+# mcp_servers:
+#   - name: filesystem
+#     enabled: true
+#     command: npx
+#     args: ["-y", "@modelcontextprotocol/server-filesystem", "."]
+#   - name: github
+#     enabled: false             # preset stubs from `openclio init` start disabled
+#     command: npx
+#     args: ["-y", "@modelcontextprotocol/server-github"]
+#     env:
+#       GITHUB_TOKEN: GITHUB_TOKEN   # env var name
+
+# ── CLI (interactive terminal) ────────────────────────────────────────────────
+cli:
+  scanner_buffer: 65536          # 64 KB line scanner buffer
+
+# ── Channel Adapters ──────────────────────────────────────────────────────────
+channels:
+  allow_all: true
+
+  # telegram:
+  #   token_env: TELEGRAM_BOT_TOKEN
+
+  # discord:
+  #   token_env: DISCORD_BOT_TOKEN
+  #   app_id_env: DISCORD_APP_ID
+
+  # whatsapp:
+  #   enabled: false
+  #   # data_dir: ~/.openclio
+  #   # Uses QR login via WhatsApp Linked Devices.
+  #   # token_env / webhook_url are reserved for a future Cloud API mode and are ignored today.
+
+# ── Scheduled Tasks (Cron) ────────────────────────────────────────────────────
+# cron:
+#   - name: daily-summary
+#     schedule: "0 9 * * *"
+#     # trigger: "every 6 hours"   # optional event-driven watch trigger (use schedule OR trigger)
+#     prompt: "Give me a brief summary of what I should focus on today."
+#     channel: telegram
+#     session_mode: isolated      # isolated | shared (default: isolated)
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+logging:
+  level:  info
+  output: stderr

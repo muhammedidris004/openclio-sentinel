@@ -1,0 +1,55 @@
+model:
+  provider: ollama
+  model: gpt-oss:20b
+
+embeddings:
+  provider: auto
+  model: nomic-embed-text
+  base_url: http://localhost:11434
+
+gateway:
+  port: 18889
+  bind: 127.0.0.1
+
+memory:
+  provider: workspace
+  mode: standard
+  eam_serving_enabled: false
+
+context:
+  max_tokens_per_call: 8000
+  history_retrieval_k: 10
+  proactive_compaction: 0.5
+  compaction_keep_recent: 5
+  tool_result_summary: true
+
+agent:
+  name: OpenClio Sentinel
+  max_tool_iterations: 0
+  delegation:
+    enabled: false
+    max_parallel_sub_agents: 3
+    timeout: 90s
+
+tools:
+  max_output_size: 102400
+  scrub_output: true
+  packs: [developer, research]
+  allowed_tools: [channel_status, edit_file, exec, image_analyze, list_dir, memory_write, read_file, switch_model, web_fetch, web_search, write_file]
+  exec:
+    sandbox: none
+    timeout: 30s
+    profile: developer
+    approval_on_block: true
+    allowed_commands: [awk, cat, echo, find, gh, git, go, grep, head, ls, make, node, npm, pip, pip3, pnpm, pwd, pytest, python, python3, rg, sed, tail, uv, wc, yarn]
+  browser:
+    enabled: false
+    headless: true
+    timeout: 30s
+
+channels:
+  allow_all: false
+
+logging:
+  level: info
+  output: stderr

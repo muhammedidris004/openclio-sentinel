@@ -1,0 +1,82 @@
+# Binaries
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+/agent
+/openclio
+/openclio-*
+!docs/assets/openclio-logo-sky.png
+!docs/assets/openclio-icon-sky.png
+
+# Test
+*.test
+*.out
+coverage.html
+test-reports/
+.latest_test_report_dir
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Agent data (never commit user data)
+*.db
+*.db-wal
+*.db-shm
+.env
+*.progress.log
+*.stdout.log
+*.stderr.log
+*.queue.status.txt
+~$*.docx
+__pycache__/
+*.pyc
+research/eam_phase7/external_eval/data/locomo10_normalized.json
+research/eam_phase7/paper/EAM_Paper.docx
+research/eam_phase7/paper/EAM_Paper_submission_ready.docx
+research/eam_phase7/paper/EAM_Paper_submission_ready.html
+research/eam_phase7/paper/main_paper_arxiv_prep.docx
+research/eam_phase7/paper/main_paper_arxiv_prep.html
+research/eam_phase7/paper/main_paper_arxiv_prep.pdf
+research/eam_phase7/paper/main_paper_arxiv_ready.docx
+research/eam_phase7/paper/main_paper_arxiv_ready.html
+research/eam_phase7/paper/main_paper_arxiv_ready.pdf
+research/eam_phase7/paper/main_paper_draft.md
+research/eam_phase7/paper/openreview_metadata_template.md
+
+# Go cache
+.gocache/
+
+# Real config (use config.example.yaml instead)
+config.yaml
+
+# Vendor (optional — uncomment if vendoring)
+# vendor/
+
+# ── Private planning & internal docs ──────────────────────────────────────────
+private/
+
+# ── User personalization files (never commit your agent's identity) ───────────
+# These files belong in ~/.openclio/ not the repo root
+# If running from git clone, these may be created during development
+/identity.md
+/user.md
+/memory.md
+/SOUL.md
+/PHILOSOPHY.md
+/AGENTS_REFERENCE.md
+
+# ── Local hackathon integration files ────────────────────────────────────────
+integrations/synthesis/.env
+integrations/synthesis/registration.json
+integrations/synthesis/.openclio.env
+integrations/synthesis/artifacts/

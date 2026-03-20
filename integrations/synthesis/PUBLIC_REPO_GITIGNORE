@@ -1,0 +1,14 @@
+# Local secrets
+.env
+*.local.env
+integrations/synthesis/.openclio.env
+
+# Local registration/runtime state
+integrations/synthesis/registration.json
+integrations/synthesis/artifacts/
+
+# OS/editor noise
+.DS_Store
+*.swp
+*.swo
+*~
